@@ -1,7 +1,7 @@
 # SquadJS Skipmap Plugin
 SquadJS plugin for voting for skip map
 
-SquadJS плагин для пропуска карты для Squad
+SquadJS плагин для пропуска карты в Squad
 
 ## Установка
 
