@@ -36,42 +36,60 @@ SquadJS плагин для пропуска карты для Squad
 
 ## Описание параметров
 
-**startVoteCommand**: 
+**startVoteCommand**
   description: 'Команда начала голосования',
   default: 'skipmap'
   
 **startVoteMessage**
+  
   description: 'Сообщение после начала голосования',
+  
   default: 'Голосование за скип карты! + или - в чат'
 
-**ignoreChats**: 
+**ignoreChats**
+
   description: 'Пропускаемые чаты',
+
   default: ['ChatTeam', 'ChatSquad']
 
-**endVoteTimer**: 
+**endVoteTimer**
+  
   description: 'Время на голосование в секундах',
+  
   default: 120
 
-**activeTimeAfterNewMap**: 
+**activeTimeAfterNewMap**
+  
   description: 'Время после начала новой карты в которое доступен скип карты в секундах',
+  
   default: 180
 
-**minPlayersForStart**:
+**minPlayersForStart**
+  
   description: 'Минимальное количество игроков после которого активен скип карты',
+  
   default: 10
 
-**minPlayersVotePercent**:
+**minPlayersVotePercent**
+  
   description: 'Минимальный процент проголосовавших для зачета результата, дробное значение',
+  
   default: 0.30
 
-**timeoutBeforeEndMatch**:
+**timeoutBeforeEndMatch**
+  
   description: 'Таймаут перед завершением матча в секундах',
+  
   default: 7
 
-**periodicallyMessageTimer**:
+**periodicallyMessageTimer**
+  
   description: 'Время между сообщениями о ходе голосования, в секундах',
+  
   default: 15
 
-**periodicallyMessageText**:
+**periodicallyMessageText**
+  
   description: 'Текст периодического сообщения',
+  
   default: 'Скип? +/-'
