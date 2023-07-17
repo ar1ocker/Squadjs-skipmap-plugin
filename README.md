@@ -3,6 +3,8 @@ SquadJS plugin for voting for skip map
 
 SquadJS плагин для пропуска карты в Squad
 
+Проверено на версии 3.7.0
+
 ## Установка
 
 1. Копируем файл в папку squad-server/plugins/
