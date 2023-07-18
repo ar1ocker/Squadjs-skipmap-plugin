@@ -39,7 +39,9 @@ SquadJS плагин для пропуска карты в Squad
 ## Описание параметров
 
 **startVoteCommand**
+  
   description: 'Команда начала голосования',
+  
   default: 'skipmap'
   
 **startVoteMessage**
