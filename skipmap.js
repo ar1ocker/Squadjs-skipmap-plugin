@@ -82,17 +82,17 @@ export default class SkipMapVote extends BasePlugin {
     this.messageProcessing = this.messageProcessing.bind(this);
   }
 
+  isActiveTimeForVote() {
+    // Можно ли сейчас запускать голосование?
+    return (new Date() - this.startTimeOfLastGame) / 1000 < this.options.activeTimeAfterNewMap;
+  }
+
   async sendWarn(player, message) {
     await this.server.rcon.warn(player.steamID, message);
   }
 
   async sendBroadcast(message) {
     await this.server.rcon.broadcast(message);
-  }
-
-  async isActiveTimeForVote() {
-    // Можно ли сейчас запускать голосование?
-    return (new Date() - this.startTimeOfLastGame) / 1000 < this.options.activeTimeAfterNewMap;
   }
 
   async periodicallyMessage() {
@@ -114,7 +114,7 @@ export default class SkipMapVote extends BasePlugin {
     return [countPositively, countAgainst]
   }
 
-  async setVoteByMessage(data) {
+  setVoteByMessage(data) {
     // Проверка сообщения на наличие голосования + или -
     switch (data.message) {
       case '+':
@@ -129,10 +129,10 @@ export default class SkipMapVote extends BasePlugin {
 
   async messageProcessing(data) {
     // Проверка сообщений и уведомление о принятии голоса
-    let isVote = await this.setVoteByMessage(data);
+    let isVote = this.setVoteByMessage(data);
 
     if (isVote) {
-      this.sendWarn(data.player, 'Ваш голос принят');
+      await this.sendWarn(data.player, 'Ваш голос принят');
     }
   }
 
