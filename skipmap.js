@@ -80,12 +80,15 @@ export default class SkipMapVote extends BasePlugin {
     this.startTimeOfLastGame = new Date();
     this.votes = new Map();
 
-    this.intervalMessage;
+    this.intervalMessageTimeout;
+    this.endVoteTimeout;
+    this.endMatchTimeout;
 
     this.onStartVoteCommand = this.onStartVoteCommand.bind(this);
     this.endVote = this.endVote.bind(this);
     this.periodicallyMessage = this.periodicallyMessage.bind(this);
     this.messageProcessing = this.messageProcessing.bind(this);
+    this.endMatch = this.endMatch.bind(this);
   }
 
   isActiveTimeForVote() {
@@ -99,6 +102,10 @@ export default class SkipMapVote extends BasePlugin {
 
   async sendBroadcast(message) {
     await this.server.rcon.broadcast(message);
+  }
+
+  async endMatch() {
+    await this.server.rcon.execute('AdminEndMatch')
   }
 
   async periodicallyMessage() {
@@ -149,11 +156,14 @@ export default class SkipMapVote extends BasePlugin {
 
     this.server.on('CHAT_MESSAGE', this.messageProcessing);
 
-    await this.sendBroadcast(this.options.startVoteMessage + ', ' + this.options.endVoteTimer + ' секунд');
+    await this.sendBroadcast(this.options.startVoteMessage + ', '
+                             + this.options.endVoteTimer
+                             + ' секунд');
 
-    setTimeout(this.endVote, this.options.endVoteTimer * 1000);
+    this.endVoteTimeout = setTimeout(this.endVote,
+                                     this.options.endVoteTimer * 1000);
 
-    this.intervalMessage = setInterval(
+    this.intervalMessageTimeout = setInterval(
       this.periodicallyMessage,
       this.options.periodicallyMessageTimer * 1000
     );
@@ -162,7 +172,7 @@ export default class SkipMapVote extends BasePlugin {
   async endVote() {
     // Окончание голосования с выводом результатов
     this.server.removeListener('CHAT_MESSAGE', this.messageProcessing);
-    clearInterval(this.intervalMessage);
+    clearInterval(this.intervalMessageTimeout);
     this.voteHasBeenStartedOnThisGame = true;
     this.voteIsStarted = false;
 
@@ -192,8 +202,8 @@ export default class SkipMapVote extends BasePlugin {
       `СКИП! ${countPositively}/${countAgainst}`
     )
 
-    setTimeout(() => this.server.rcon.execute('AdminEndMatch'),
-               this.options.timeoutBeforeEndMatch * 1000)
+    this.endMatchTimeout = setTimeout(this.endMatch,
+                                      this.options.timeoutBeforeEndMatch * 1000)
   }
 
   async onStartVoteCommand(data) {
@@ -247,7 +257,7 @@ export default class SkipMapVote extends BasePlugin {
           + this.startTimeOfLastGame.valueOf()
           + 2 * 60 * 1000
         > Date.now()
-      )
+      );
 
       if (hasSkipped) {
         this.previousMatchHasBeenSkipped = true;
@@ -259,6 +269,9 @@ export default class SkipMapVote extends BasePlugin {
       this.voteIsStarted = false;
       this.voteHasBeenStartedOnThisGame = false;
       this.votes.clear();
+
+      clearTimeout(this.endVoteTimeout);
+      clearTimeout(this.endMatchTimeout)
     })
 
     this.server.on(
