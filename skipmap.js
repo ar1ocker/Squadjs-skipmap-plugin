@@ -62,6 +62,11 @@ export default class SkipMapVote extends BasePlugin {
         required: false,
         description: 'Текст периодического сообщения',
         default: 'Скип? +/-'
+      },
+      ignoreWhenPreviousMatchSkipped: {
+        required: false,
+        description: 'Игнорировать ли команду когда предыдущая карты была скипнута',
+        default: true
       }
     };
   }
@@ -71,6 +76,7 @@ export default class SkipMapVote extends BasePlugin {
 
     this.voteIsStarted = false;
     this.voteHasBeenStartedOnThisGame = false;
+    this.previousMatchHasBeenSkipped = false;
     this.startTimeOfLastGame = new Date();
     this.votes = new Map();
 
@@ -223,11 +229,32 @@ export default class SkipMapVote extends BasePlugin {
       return;
     }
 
+    if (this.options.ignoreWhenPreviousMatchSkipped && this.previousMatchHasBeenSkipped) {
+      await this.sendWarn(data.player,
+        'Предыдущая карта уже была скипнута, играй')
+    }
+
+
     await this.startVote()
   }
 
   async mount() {
     this.server.on('NEW_GAME', async () => {
+      // если карта игралась меньше таймера + 2 минуты то значит игру предыдущую скипнули
+      const hasSkipped = (
+        this.options.activeTimeAfterNewMap * 1000
+          + this.options.endVoteTimer * 1000
+          + this.startTimeOfLastGame.valueOf()
+          + 2 * 60 * 1000
+        > Date.now()
+      )
+
+      if (hasSkipped) {
+        this.previousMatchHasBeenSkipped = true;
+      } else {
+        this.previousMatchHasBeenSkipped = false;
+      }
+
       this.startTimeOfLastGame = new Date();
       this.voteIsStarted = false;
       this.voteHasBeenStartedOnThisGame = false;
