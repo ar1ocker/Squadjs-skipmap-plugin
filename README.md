@@ -101,6 +101,6 @@ SquadJS плагин для пропуска карты в Squad
 
 **ignoreWhenPreviousMatchSkipped**
 
-  description: 'Игнорировать ли команду когда предыдущая карты была скипнута',
+  description: 'Игнорировать ли команду когда предыдущая карта была скипнута',
 
   default: true

@@ -65,7 +65,7 @@ export default class SkipMapVote extends BasePlugin {
       },
       ignoreWhenPreviousMatchSkipped: {
         required: false,
-        description: 'Игнорировать ли команду когда предыдущая карты была скипнута',
+        description: 'Игнорировать ли команду когда предыдущая карта была скипнута',
         default: true
       }
     };
@@ -271,7 +271,8 @@ export default class SkipMapVote extends BasePlugin {
       this.votes.clear();
 
       clearTimeout(this.endVoteTimeout);
-      clearTimeout(this.endMatchTimeout)
+      clearTimeout(this.endMatchTimeout);
+      clearInterval(this.intervalMessageTimeout);
     })
 
     this.server.on(
