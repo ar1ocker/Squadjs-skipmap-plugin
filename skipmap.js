@@ -228,9 +228,15 @@ export default class SkipMapVote extends BasePlugin {
 
   async mount() {
     this.server.on('NEW_GAME', async () => {
+      // если карта игралась меньше таймера + 15сек то значит игру предыдущую скипнули
+      const hasSkipped = (this.options.endVoteTimer * 1000) + this.startTimeOfLastGame.valueOf() + 15000 
+      if (hasSkipped > Date.now()) {
+        this.voteHasBeenStartedOnThisGame = true;
+      } else {
+        this.voteHasBeenStartedOnThisGame = false;
+      }
       this.startTimeOfLastGame = new Date();
       this.voteIsStarted = false;
-      this.voteHasBeenStartedOnThisGame = false;
       this.votes.clear();
     })
 
