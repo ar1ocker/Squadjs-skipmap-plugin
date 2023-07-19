@@ -31,7 +31,7 @@ export default class SkipMapVote extends BasePlugin {
       endVoteTimer: {
         required: false,
         description: 'Время на голосование в секундах',
-        default: 120
+        default: 90
       },
       activeTimeAfterNewMap: {
         required: false,
