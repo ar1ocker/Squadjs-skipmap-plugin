@@ -26,7 +26,7 @@ SquadJS плагин для пропуска карты в Squad
   "startVoteCommand": "skipmap",
   "startVoteMessage": "Голосование за скип карты! + или - в чат"
   "ignoreChats": ["ChatTeam", "ChatSquad"],
-  "endVoteTimer": 120,
+  "endVoteTimer": 90,
   "activeTimeAfterNewMap": 180,
   "minPlayersForStart": 10,
   "minPlayersVotePercent": 0.30,
@@ -60,7 +60,7 @@ SquadJS плагин для пропуска карты в Squad
   
   description: 'Время на голосование в секундах',
   
-  default: 120
+  default: 90
 
 **activeTimeAfterNewMap**
   
