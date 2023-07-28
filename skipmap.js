@@ -256,7 +256,7 @@ export default class SkipMapVote extends BasePlugin {
         this.options.activeTimeAfterNewMap * 1000
           + this.options.endVoteTimer * 1000
           + this.startTimeOfLastGame.valueOf()
-          + 2 * 60 * 1000
+          + 5 * 60 * 1000
         > Date.now()
       );
 
