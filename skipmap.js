@@ -241,7 +241,8 @@ export default class SkipMapVote extends BasePlugin {
 
     if (this.options.ignoreWhenPreviousMatchSkipped && this.previousMatchHasBeenSkipped) {
       await this.sendWarn(data.player,
-        'Предыдущая карта уже была скипнута, играй')
+        'Предыдущая карта уже была скипнута, играй');
+      return;
     }
 
 
@@ -251,19 +252,13 @@ export default class SkipMapVote extends BasePlugin {
   async mount() {
     this.server.on('NEW_GAME', async () => {
       // если карта игралась меньше таймера + 2 минуты то значит игру предыдущую скипнули
-      const hasSkipped = (
+      this.previousMatchHasBeenSkipped = (
         this.options.activeTimeAfterNewMap * 1000
           + this.options.endVoteTimer * 1000
           + this.startTimeOfLastGame.valueOf()
           + 2 * 60 * 1000
         > Date.now()
       );
-
-      if (hasSkipped) {
-        this.previousMatchHasBeenSkipped = true;
-      } else {
-        this.previousMatchHasBeenSkipped = false;
-      }
 
       this.startTimeOfLastGame = new Date();
       this.voteIsStarted = false;
