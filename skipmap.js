@@ -141,6 +141,11 @@ export default class SkipMapVote extends BasePlugin {
   }
 
   async messageProcessing(data) {
+    // Иногда squadjs реагирует на сообщение игрока раньше, чем добавит его в список игроков
+    if (data.player === null) {
+      return;
+    }
+
     // Проверка сообщений и уведомление о принятии голоса
     let isVote = this.setVoteByMessage(data);
 
