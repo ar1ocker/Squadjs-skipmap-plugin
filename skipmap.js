@@ -21,7 +21,7 @@ export default class SkipMapVote extends BasePlugin {
       startVoteMessage: {
         required: false,
         description: 'Сообщение после начала голосования',
-        default: 'Голосование за скип карты! + или - в чат'
+        default: 'Голосование за пропуск карты! + или - в чат'
       },
       ignoreChats: {
         required: false,
@@ -46,7 +46,7 @@ export default class SkipMapVote extends BasePlugin {
       minPlayersVotePercent: {
         required: false,
         description: 'Минимальный процент проголосовавших для зачета результата, дробное значение',
-        default: 0.30
+        default: 0.35
       },
       timeoutBeforeEndMatch: {
         required: false,
@@ -56,12 +56,12 @@ export default class SkipMapVote extends BasePlugin {
       periodicallyMessageTimer: {
         required: false,
         description: 'Время между сообщениями о ходе голосования, в секундах',
-        default: 15
+        default: 10
       },
       periodicallyMessageText: {
         required: false,
         description: 'Текст периодического сообщения',
-        default: 'Скип? +/-'
+        default: 'Пропускаем карту? +/-'
       },
       ignoreWhenPreviousMatchSkipped: {
         required: false,
@@ -191,20 +191,20 @@ export default class SkipMapVote extends BasePlugin {
 
     if (allVoted <= minPlayersVote){
       await this.sendBroadcast(
-        `Скипа не будет, проголосовало меньше ${this.options.minPlayersVotePercent * 100}% игроков`
+        `Пропуска не будет, проголосовало меньше ${this.options.minPlayersVotePercent * 100}% игроков`
       )
       return
     }
 
     if (countAgainst > countPositively) {
       await this.sendBroadcast(
-        `Скипа не будет, голосов 'за' меньше чем 'против'. ${countPositively}/${countAgainst}`
+        `Пропуска не будет, голосов 'за' меньше чем 'против'. ${countPositively}/${countAgainst}`
       )
       return
     }
 
     await this.sendBroadcast(
-      `СКИП! ${countPositively}/${countAgainst}`
+      `Пропуск карты! (${countPositively}/${countAgainst})`
     )
 
     this.endMatchTimeout = setTimeout(this.endMatch,
@@ -249,7 +249,6 @@ export default class SkipMapVote extends BasePlugin {
         'Предыдущая карта уже была скипнута, играй');
       return;
     }
-
 
     await this.startVote()
   }
