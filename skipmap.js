@@ -46,7 +46,12 @@ export default class SkipMapVote extends BasePlugin {
       minPlayersVotePercent: {
         required: false,
         description: 'Минимальный процент проголосовавших для зачета результата, дробное значение',
-        default: 0.35
+        default: 0.45
+      },
+      minPositivelyVotesPercent: {
+        required: false,
+        description: 'Процент положительных голосов из общего числа проголосовавших для зачета голосования, дробное значение',
+        default: 0.65
       },
       timeoutBeforeEndMatch: {
         required: false,
@@ -189,6 +194,10 @@ export default class SkipMapVote extends BasePlugin {
 
     let allVoted = this.votes.size
 
+    let minPlayersPositively = Math.floor(
+      allVoted * this.options.minPositivelyVotesPercent
+    )
+
     if (allVoted <= minPlayersVote){
       await this.sendBroadcast(
         `Пропуска не будет, проголосовало меньше ${this.options.minPlayersVotePercent * 100}% игроков`
@@ -200,6 +209,13 @@ export default class SkipMapVote extends BasePlugin {
       await this.sendBroadcast(
         `Пропуска не будет, голосов 'за' меньше чем 'против'. ${countPositively}/${countAgainst}`
       )
+      return
+    }
+
+    if (countPositively < minPlayersPositively) {
+      await this.sendBroadcast(
+        `Пропуска не будет, голосов 'за' должно быть более ${this.options.minPositivelyVotesPercent}% от общего числа голосовавших`
+      );
       return
     }
 
@@ -255,7 +271,7 @@ export default class SkipMapVote extends BasePlugin {
 
   async mount() {
     this.server.on('NEW_GAME', async () => {
-      // если карта игралась меньше таймера + 2 минуты то значит игру предыдущую скипнули
+      // если карта игралась меньше таймера + 5 минут то значит игру предыдущую скипнули
       this.previousMatchHasBeenSkipped = (
         this.options.activeTimeAfterNewMap * 1000
           + this.options.endVoteTimer * 1000
