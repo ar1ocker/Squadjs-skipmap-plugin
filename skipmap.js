@@ -214,7 +214,7 @@ export default class SkipMapVote extends BasePlugin {
 
     if (countPositively < minPlayersPositively) {
       await this.sendBroadcast(
-        `Пропуска не будет, голосов 'за' должно быть более ${this.options.minPositivelyVotesPercent}% от общего числа голосовавших`
+        `Пропуска не будет, голосов 'за' должно быть более ${this.options.minPositivelyVotesPercent * 100}% от общего числа голосовавших`
       );
       return
     }
