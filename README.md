@@ -3,7 +3,7 @@ SquadJS plugin for voting for skip map
 
 SquadJS плагин для пропуска карты в Squad
 
-Проверено на версии 3.7.0
+Проверено на версии 4.0.0 с патчами от https://github.com/fantinodavide/SquadJS/tree/eos-integration
 
 ## Установка
 
