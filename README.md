@@ -35,7 +35,7 @@ The rest of the parameters are described in the plugin
 
 SquadJS плагин для пропуска карты в Squad
 
-Проверено на версии 4.0.0 с патчами от https://github.com/fantinodavide/SquadJS/tree/eos-integration
+Проверено на версии SquadJS 4.1.0
 
 Чтобы добавить язык или изменить существующий, измените файлы локализации в папке "skipmap-locales"
 
