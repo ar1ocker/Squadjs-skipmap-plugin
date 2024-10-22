@@ -1,10 +1,9 @@
-import BasePlugin from './base-plugin.js';
+import y18n from "y18n";
+import BasePlugin from "./base-plugin.js";
 
 export default class SkipMapVote extends BasePlugin {
   static get description() {
-    return (
-      'Голосовалка за скип карты'
-    );
+    return "Voting for skip maps";
   }
 
   static get defaultEnabled() {
@@ -13,71 +12,77 @@ export default class SkipMapVote extends BasePlugin {
 
   static get optionsSpecification() {
     return {
+      language: {
+        required: false,
+        description: "Plugin language",
+        default: "en",
+      },
       startVoteCommand: {
         required: false,
-        description: 'Команда начала голосования',
-        default: 'skipmap'
-      },
-      startVoteMessage: {
-        required: false,
-        description: 'Сообщение после начала голосования',
-        default: 'Голосование за пропуск карты! + или - в чат'
+        description: "Command for start",
+        default: "skipmap",
       },
       ignoreChats: {
         required: false,
-        description: 'Пропускаемые чаты',
-        default: ['ChatTeam', 'ChatSquad']
+        description: "Skipped Chats",
+        default: ["ChatTeam", "ChatSquad"],
       },
       endVoteTimer: {
         required: false,
-        description: 'Время на голосование в секундах',
-        default: 90
+        description: "Time to vote in seconds",
+        default: 90,
       },
       activeTimeAfterNewMap: {
         required: false,
-        description: 'Время после начала новой карты в которое доступен скип карты в секундах',
-        default: 180
+        description:
+          "The time after the start of a new map at which the map skip is available in seconds",
+        default: 180,
       },
       minPlayersForStart: {
         required: false,
-        description: 'Минимальное количество игроков после которого активен скип карты',
-        default: 10
+        description:
+          "The minimum number of players after which the map skip is active",
+        default: 10,
       },
       minPlayersVotePercent: {
         required: false,
-        description: 'Минимальный процент проголосовавших для зачета результата, дробное значение',
-        default: 0.45
+        description:
+          "The minimum percentage of those who voted to recognize the result as valid, fractional value",
+        default: 0.45,
       },
       minPositivelyVotesPercent: {
         required: false,
-        description: 'Процент положительных голосов из общего числа проголосовавших для зачета голосования, дробное значение',
-        default: 0.65
+        description:
+          "The percentage of positive votes out of the total number of those who voted in order to consider the vote valid, a fractional value",
+        default: 0.65,
       },
       timeoutBeforeEndMatch: {
         required: false,
-        description: 'Таймаут перед завершением матча в секундах',
-        default: 7
+        description: "Time out before the end of the match in seconds",
+        default: 7,
       },
       periodicallyMessageTimer: {
         required: false,
-        description: 'Время между сообщениями о ходе голосования, в секундах',
-        default: 10
-      },
-      periodicallyMessageText: {
-        required: false,
-        description: 'Текст периодического сообщения',
-        default: 'Пропускаем карту? +/-'
+        description:
+          "The time between messages about the voting process, in seconds",
+        default: 10,
       },
       ignoreWhenPreviousMatchSkipped: {
         required: false,
-        description: 'Игнорировать ли команду когда предыдущая карта была скипнута',
-        default: true
-      }
+        description:
+          "Should we ignore the command when the previous map was skipped",
+        default: true,
+      },
     };
   }
 
   constructor(server, options, connectors) {
     super(server, options, connectors);
+
+    this.locale = y18n({
+      locale: this.options.language,
+      directory: "./squad-server/plugins/skipmap-locales",
+    }).__;
 
     this.voteIsStarted = false;
     this.voteHasBeenStartedOnThisGame = false;
@@ -97,8 +102,11 @@ export default class SkipMapVote extends BasePlugin {
   }
 
   isActiveTimeForVote() {
-    // Можно ли сейчас запускать голосование?
-    return (new Date() - this.startTimeOfLastGame) / 1000 < this.options.activeTimeAfterNewMap;
+    // Is it possible to start voting now?
+    return (
+      (new Date() - this.startTimeOfLastGame) / 1000 <
+      this.options.activeTimeAfterNewMap
+    );
   }
 
   async sendWarn(player, message) {
@@ -110,68 +118,69 @@ export default class SkipMapVote extends BasePlugin {
   }
 
   async endMatch() {
-    await this.server.rcon.execute('AdminEndMatch')
+    await this.server.rcon.execute("AdminEndMatch");
   }
 
   async periodicallyMessage() {
-    // Отправка периодического сообщения
     await this.sendBroadcast(
-      this.options.periodicallyMessageText + ' (' + this.getVoteResults().join('/') + ')'
+      this
+        .locale`Are we skipping the map? +/- (${this.getVoteResults().join("/")})`
     );
   }
 
   getVoteResults() {
-    // Получение текущих результатов голосования
     let countAgainst = 0;
     let countPositively = 0;
 
-    for (let vote of this.votes.values()){
+    for (let vote of this.votes.values()) {
       vote ? countPositively++ : countAgainst++;
     }
 
-    return [countPositively, countAgainst]
+    return [countPositively, countAgainst];
   }
 
   setVoteByMessage(data) {
-    // Проверка сообщения на наличие голосования + или -
+    // Checking the message for voting + or -
     switch (data.message) {
-      case '+':
+      case "+":
         this.votes.set(data.player.steamID, true);
         return true;
-      case '-':
+      case "-":
         this.votes.set(data.player.steamID, false);
         return true;
     }
-    return false
+    return false;
   }
 
   async messageProcessing(data) {
-    // Иногда squadjs реагирует на сообщение игрока раньше, чем добавит его в список игроков
+    // Sometimes squadjs reacts to a player's message before adding him to the list of players
     if (data.player === null) {
       return;
     }
 
-    // Проверка сообщений и уведомление о принятии голоса
+    // Checking messages and notification of vote acceptance
     let isVote = this.setVoteByMessage(data);
 
     if (isVote) {
-      await this.sendWarn(data.player, 'Ваш голос принят');
+      await this.sendWarn(data.player, this.locale`Your vote is accepted`);
     }
   }
 
   async startVote() {
-    // Запуск голосования
     this.voteIsStarted = true;
     this.votes.clear();
 
-    this.server.on('CHAT_MESSAGE', this.messageProcessing);
+    this.server.on("CHAT_MESSAGE", this.messageProcessing);
 
-    await this.sendBroadcast(this.options.startVoteMessage + ', '
-                             + this.options.endVoteTimer
-                             + ' секунд');
+    await this.sendBroadcast(
+      this
+        .locale`Vote for skipping the map! + or - to chat, ${this.options.endVoteTimer} seconds`
+    );
 
-    this.endVoteTimeout = setTimeout(this.endVote,
-                                     this.options.endVoteTimer * 1000);
+    this.endVoteTimeout = setTimeout(
+      this.endVote,
+      this.options.endVoteTimer * 1000
+    );
 
     this.intervalMessageTimeout = setInterval(
       this.periodicallyMessage,
@@ -180,105 +189,126 @@ export default class SkipMapVote extends BasePlugin {
   }
 
   async endVote() {
-    // Окончание голосования с выводом результатов
-    this.server.removeListener('CHAT_MESSAGE', this.messageProcessing);
+    // The end of voting with the output of the results
+    this.server.removeListener("CHAT_MESSAGE", this.messageProcessing);
     clearInterval(this.intervalMessageTimeout);
     this.voteHasBeenStartedOnThisGame = true;
     this.voteIsStarted = false;
 
     let minPlayersVote = Math.floor(
       this.server.a2sPlayerCount * this.options.minPlayersVotePercent
-    )
+    );
 
-    let [countPositively, countAgainst] = this.getVoteResults()
+    let [countPositively, countAgainst] = this.getVoteResults();
 
-    let allVoted = this.votes.size
+    let allVoted = this.votes.size;
 
     let minPlayersPositively = Math.floor(
       allVoted * this.options.minPositivelyVotesPercent
-    )
+    );
 
-    if (allVoted <= minPlayersVote){
+    if (allVoted <= minPlayersVote) {
       await this.sendBroadcast(
-        `Пропуска не будет, проголосовало меньше ${this.options.minPlayersVotePercent * 100}% игроков`
-      )
-      return
+        this
+          .locale`There will be no skip, less than ${this.options.minPlayersVotePercent * 100}% of the players voted`
+      );
+      return;
     }
 
     if (countAgainst > countPositively) {
       await this.sendBroadcast(
-        `Пропуска не будет, голосов 'за' меньше чем 'против'. ${countPositively}/${countAgainst}`
-      )
-      return
+        this
+          .locale`There will be no skip, there will be fewer votes for than against. ${countPositively}/${countAgainst}`
+      );
+      return;
     }
 
     if (countPositively < minPlayersPositively) {
       await this.sendBroadcast(
-        `Пропуска не будет, голосов 'за' должно быть более ${this.options.minPositivelyVotesPercent * 100}% от общего числа голосовавших`
+        this
+          .locale`There will be no skip, there must be more than ${this.options.minPositivelyVotesPercent * 100}% of the total number of votes in favor`
       );
-      return
+      return;
     }
 
     await this.sendBroadcast(
-      `Пропуск карты! (${countPositively}/${countAgainst})`
-    )
+      this.locale`Skipping the map! (${countPositively}/${countAgainst})`
+    );
 
-    this.endMatchTimeout = setTimeout(this.endMatch,
-                                      this.options.timeoutBeforeEndMatch * 1000)
+    this.endMatchTimeout = setTimeout(
+      this.endMatch,
+      this.options.timeoutBeforeEndMatch * 1000
+    );
   }
 
   async onStartVoteCommand(data) {
-    // Проверка на возможность запуска голосования на текущий момент
+    // Checking for the possibility of starting voting at the moment
     if (this.options.ignoreChats.includes(data.chat)) {
       await this.sendWarn(
         data.player,
-        `В данном чате команда !${this.options.startVoteCommand} недоступна`
+        this
+          .locale`In this chat, the command !${this.options.startVoteCommand} is unavailable`
       );
       return;
     }
 
     if (this.voteIsStarted) {
-      await this.sendWarn(data.player, 'Голосование уже начато');
+      await this.sendWarn(
+        data.player,
+        this.locale`The voting has already started`
+      );
       return;
     }
 
     if (!this.isActiveTimeForVote()) {
-      await this.sendWarn(data.player,
-        `Начать голосование можно лишь в течении ${this.options.activeTimeAfterNewMap} секунд после старта матча`);
+      await this.sendWarn(
+        data.player,
+        this
+          .locale`You can start voting only within ${this.options.activeTimeAfterNewMap} seconds after the start of the match`
+      );
       return;
     }
 
     if (this.server.a2sPlayerCount < this.options.minPlayersForStart) {
-      await this.sendWarn(data.player,
-        `Начать голосование можно от ${this.options.minPlayersForStart} игроков на сервере`);
+      await this.sendWarn(
+        data.player,
+        this
+          .locale`You can start voting from ${this.options.minPlayersForStart} of the players on the server`
+      );
       return;
     }
 
     if (this.voteHasBeenStartedOnThisGame) {
-      await this.sendWarn(data.player,
-        'В этом матче голосование уже проходило');
+      await this.sendWarn(
+        data.player,
+        this.locale`Voting has already taken place in this match`
+      );
       return;
     }
 
-    if (this.options.ignoreWhenPreviousMatchSkipped && this.previousMatchHasBeenSkipped) {
-      await this.sendWarn(data.player,
-        'Предыдущая карта уже была скипнута, играй');
+    if (
+      this.options.ignoreWhenPreviousMatchSkipped &&
+      this.previousMatchHasBeenSkipped
+    ) {
+      await this.sendWarn(
+        data.player,
+        this.locale`The previous map has already been skipped, go play`
+      );
       return;
     }
 
-    await this.startVote()
+    await this.startVote();
   }
 
   async mount() {
-    this.server.on('NEW_GAME', async () => {
-      // если карта игралась меньше таймера + 5 минут то значит игру предыдущую скипнули
-      this.previousMatchHasBeenSkipped = (
-        this.options.activeTimeAfterNewMap * 1000
-          + this.options.endVoteTimer * 1000
-          + this.startTimeOfLastGame.valueOf()
-          + 5 * 60 * 1000
-        > Date.now()
-      );
+    this.server.on("NEW_GAME", async () => {
+      // if the map was played less than the timer + 5 minutes, then the previous game was skipped
+      this.previousMatchHasBeenSkipped =
+        this.options.activeTimeAfterNewMap * 1000 +
+          this.options.endVoteTimer * 1000 +
+          this.startTimeOfLastGame.valueOf() +
+          5 * 60 * 1000 >
+        Date.now();
 
       this.startTimeOfLastGame = new Date();
       this.voteIsStarted = false;
@@ -288,7 +318,7 @@ export default class SkipMapVote extends BasePlugin {
       clearTimeout(this.endVoteTimeout);
       clearTimeout(this.endMatchTimeout);
       clearInterval(this.intervalMessageTimeout);
-    })
+    });
 
     this.server.on(
       `CHAT_COMMAND:${this.options.startVoteCommand.toLowerCase()}`,

@@ -1,0 +1,15 @@
+{
+  "Are we skipping the map? +/- (%s)": "Пропускаем карту? +/- (%s)",
+  "Your vote is accepted": "Ваш голос принят",
+  "Vote for skipping the map! + or - to chat, %s seconds": "Голосование за пропуск карты! + или - в чат, %s секунд",
+  "There will be no skip, less than %s% of the players voted": "Пропуска не будет, проголосовало меньше %s% игроков",
+  "There will be no skip, there will be fewer votes for than against. %s/%s": "Пропуска не будет, голосов 'за' меньше чем 'против'. %s/%s",
+  "There will be no skip, there must be more than %s% of the total number of votes in favor": "Пропуска не будет, голосов 'за' должно быть более %s% от общего числа голосовавших",
+  "Skipping the map! (%s/%s)": "Пропуск карты! (%s/%s)",
+  "In this chat, the command !%s is unavailable": "В данном чате команда !%s недоступна",
+  "The voting has already started": "Голосование уже начато",
+  "You can start voting only within %s seconds after the start of the match": "Начать голосование можно лишь в течении %s секунд после старта матча",
+  "You can start voting from %s of the players on the server": "Начать голосование можно от %s игроков на сервере",
+  "Voting has already taken place in this match": "В этом матче голосование уже проходило",
+  "The previous map has already been skipped, go play": "Предыдущая карта уже была скипнута, играй"
+}

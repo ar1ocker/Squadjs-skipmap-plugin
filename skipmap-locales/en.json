@@ -1,0 +1,15 @@
+{
+  "Are we skipping the map? +/- (%s)": "Are we skipping the map? +/- (%s)",
+  "Your vote is accepted": "Your vote is accepted",
+  "Vote for skipping the map! + or - to chat, %s seconds": "Vote for skipping the map! + or - to chat, %s seconds",
+  "There will be no skip, less than %s% of the players voted": "There will be no skip, less than %s% of the players voted",
+  "There will be no skip, there will be fewer votes for than against. %s/%s": "There will be no skip, there will be fewer votes for than against. %s/%s",
+  "There will be no skip, there must be more than %s% of the total number of votes in favor": "There will be no skip, there must be more than %s% of the total number of votes in favor",
+  "Skipping the map! (%s/%s)": "Skipping the map! (%s/%s)",
+  "In this chat, the command !%s is unavailable": "In this chat, the command !%s is unavailable",
+  "The voting has already started": "The voting has already started",
+  "You can start voting only within %s seconds after the start of the match": "You can start voting only within %s seconds after the start of the match",
+  "You can start voting from %s of the players on the server": "You can start voting from %s of the players on the server",
+  "Voting has already taken place in this match": "Voting has already taken place in this match",
+  "The previous map has already been skipped, go play": "The previous map has already been skipped, go play"
+}
