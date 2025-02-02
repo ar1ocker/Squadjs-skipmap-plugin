@@ -34,20 +34,17 @@ export default class SkipMapVote extends BasePlugin {
       },
       activeTimeAfterNewMap: {
         required: false,
-        description:
-          "The time after the start of a new map at which the map skip is available in seconds",
+        description: "Time after the start of a new map at which the map skip is available in seconds",
         default: 180,
       },
       minPlayersForStart: {
         required: false,
-        description:
-          "The minimum number of players after which the map skip is active",
+        description: "The minimum number of players after which the map skip is active",
         default: 10,
       },
       minPlayersVotePercent: {
         required: false,
-        description:
-          "The minimum percentage of those who voted to recognize the result as valid, fractional value",
+        description: "The minimum percentage of those who voted to recognize the result as valid, fractional value",
         default: 0.45,
       },
       minPositivelyVotesPercent: {
@@ -63,14 +60,12 @@ export default class SkipMapVote extends BasePlugin {
       },
       periodicallyMessageTimer: {
         required: false,
-        description:
-          "The time between messages about the voting process, in seconds",
+        description: "The time between messages about the voting process, in seconds",
         default: 10,
       },
       ignoreWhenPreviousMatchSkipped: {
         required: false,
-        description:
-          "Should we ignore the command when the previous map was skipped",
+        description: "Should we ignore the command when the previous map was skipped",
         default: true,
       },
     };
@@ -103,10 +98,7 @@ export default class SkipMapVote extends BasePlugin {
 
   isActiveTimeForVote() {
     // Is it possible to start voting now?
-    return (
-      (new Date() - this.startTimeOfLastGame) / 1000 <
-      this.options.activeTimeAfterNewMap
-    );
+    return (new Date() - this.startTimeOfLastGame) / 1000 < this.options.activeTimeAfterNewMap;
   }
 
   async sendWarn(player, message) {
@@ -122,10 +114,7 @@ export default class SkipMapVote extends BasePlugin {
   }
 
   async periodicallyMessage() {
-    await this.sendBroadcast(
-      this
-        .locale`Are we skipping the map? +/- (${this.getVoteResults().join("/")})`
-    );
+    await this.sendBroadcast(this.locale`Are we skipping the map? +/- (${this.getVoteResults().join("/")})`);
   }
 
   getVoteResults() {
@@ -173,19 +162,12 @@ export default class SkipMapVote extends BasePlugin {
     this.server.on("CHAT_MESSAGE", this.messageProcessing);
 
     await this.sendBroadcast(
-      this
-        .locale`Vote for skipping the map! + or - to chat, ${this.options.endVoteTimer} seconds`
+      this.locale`Vote for skipping the map! + or - to chat, ${this.options.endVoteTimer} seconds`
     );
 
-    this.endVoteTimeout = setTimeout(
-      this.endVote,
-      this.options.endVoteTimer * 1000
-    );
+    this.endVoteTimeout = setTimeout(this.endVote, this.options.endVoteTimer * 1000);
 
-    this.intervalMessageTimeout = setInterval(
-      this.periodicallyMessage,
-      this.options.periodicallyMessageTimer * 1000
-    );
+    this.intervalMessageTimeout = setInterval(this.periodicallyMessage, this.options.periodicallyMessageTimer * 1000);
   }
 
   async endVote() {
@@ -195,22 +177,17 @@ export default class SkipMapVote extends BasePlugin {
     this.voteHasBeenStartedOnThisGame = true;
     this.voteIsStarted = false;
 
-    let minPlayersVote = Math.floor(
-      this.server.a2sPlayerCount * this.options.minPlayersVotePercent
-    );
+    let minPlayersVote = Math.floor(this.server.a2sPlayerCount * this.options.minPlayersVotePercent);
 
     let [countPositively, countAgainst] = this.getVoteResults();
 
     let allVoted = this.votes.size;
 
-    let minPlayersPositively = Math.floor(
-      allVoted * this.options.minPositivelyVotesPercent
-    );
+    let minPlayersPositively = Math.floor(allVoted * this.options.minPositivelyVotesPercent);
 
     if (allVoted <= minPlayersVote) {
       await this.sendBroadcast(
-        this
-          .locale`There will be no skip, less than ${this.options.minPlayersVotePercent * 100}% of the players voted`
+        this.locale`There will be no skip, less than ${this.options.minPlayersVotePercent * 100}% of the players voted`
       );
       return;
     }
@@ -231,14 +208,9 @@ export default class SkipMapVote extends BasePlugin {
       return;
     }
 
-    await this.sendBroadcast(
-      this.locale`Skipping the map! (${countPositively}/${countAgainst})`
-    );
+    await this.sendBroadcast(this.locale`Skipping the map! (${countPositively}/${countAgainst})`);
 
-    this.endMatchTimeout = setTimeout(
-      this.endMatch,
-      this.options.timeoutBeforeEndMatch * 1000
-    );
+    this.endMatchTimeout = setTimeout(this.endMatch, this.options.timeoutBeforeEndMatch * 1000);
   }
 
   async onStartVoteCommand(data) {
@@ -246,17 +218,13 @@ export default class SkipMapVote extends BasePlugin {
     if (this.options.ignoreChats.includes(data.chat)) {
       await this.sendWarn(
         data.player,
-        this
-          .locale`In this chat, the command !${this.options.startVoteCommand} is unavailable`
+        this.locale`In this chat, the command !${this.options.startVoteCommand} is unavailable`
       );
       return;
     }
 
     if (this.voteIsStarted) {
-      await this.sendWarn(
-        data.player,
-        this.locale`The voting has already started`
-      );
+      await this.sendWarn(data.player, this.locale`The voting has already started`);
       return;
     }
 
@@ -272,28 +240,18 @@ export default class SkipMapVote extends BasePlugin {
     if (this.server.a2sPlayerCount < this.options.minPlayersForStart) {
       await this.sendWarn(
         data.player,
-        this
-          .locale`You can start voting from ${this.options.minPlayersForStart} of the players on the server`
+        this.locale`You can start voting from ${this.options.minPlayersForStart} of the players on the server`
       );
       return;
     }
 
     if (this.voteHasBeenStartedOnThisGame) {
-      await this.sendWarn(
-        data.player,
-        this.locale`Voting has already taken place in this match`
-      );
+      await this.sendWarn(data.player, this.locale`Voting has already taken place in this match`);
       return;
     }
 
-    if (
-      this.options.ignoreWhenPreviousMatchSkipped &&
-      this.previousMatchHasBeenSkipped
-    ) {
-      await this.sendWarn(
-        data.player,
-        this.locale`The previous map has already been skipped, go play`
-      );
+    if (this.options.ignoreWhenPreviousMatchSkipped && this.previousMatchHasBeenSkipped) {
+      await this.sendWarn(data.player, this.locale`The previous map has already been skipped, go play`);
       return;
     }
 
@@ -320,9 +278,6 @@ export default class SkipMapVote extends BasePlugin {
       clearInterval(this.intervalMessageTimeout);
     });
 
-    this.server.on(
-      `CHAT_COMMAND:${this.options.startVoteCommand.toLowerCase()}`,
-      this.onStartVoteCommand
-    );
+    this.server.on(`CHAT_COMMAND:${this.options.startVoteCommand.toLowerCase()}`, this.onStartVoteCommand);
   }
 }
