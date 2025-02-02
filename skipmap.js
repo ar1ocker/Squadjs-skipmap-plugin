@@ -32,10 +32,15 @@ export default class SkipMapVote extends BasePlugin {
         description: "Time to vote in seconds",
         default: 90,
       },
-      activeTimeAfterNewMap: {
+      endActiveTime: {
         required: false,
-        description: "Time after the start of a new map at which the map skip is available in seconds",
+        description: "Time after which map skipping will not be available",
         default: 180,
+      },
+      startInactiveTime: {
+        required: false,
+        description: "Time before which map skipping will not be available",
+        default: 0,
       },
       minPlayersForStart: {
         required: false,
@@ -96,9 +101,12 @@ export default class SkipMapVote extends BasePlugin {
     this.endMatch = this.endMatch.bind(this);
   }
 
-  isActiveTimeForVote() {
-    // Is it possible to start voting now?
-    return (new Date() - this.startTimeOfLastGame) / 1000 < this.options.activeTimeAfterNewMap;
+  isNowEndActiveTime() {
+    return (new Date() - this.startTimeOfLastGame) / 1000 > this.options.endActiveTime;
+  }
+
+  isNowStartInactiveTime() {
+    return (new Date() - this.startTimeOfLastGame) / 1000 < this.options.startInactiveTime;
   }
 
   async sendWarn(player, message) {
@@ -228,11 +236,18 @@ export default class SkipMapVote extends BasePlugin {
       return;
     }
 
-    if (!this.isActiveTimeForVote()) {
+    if (this.isNowEndActiveTime()) {
       await this.sendWarn(
         data.player,
-        this
-          .locale`You can start voting only within ${this.options.activeTimeAfterNewMap} seconds after the start of the match`
+        this.locale`You can start voting only within ${this.options.endActiveTime} seconds after the start of the match`
+      );
+      return;
+    }
+
+    if (this.isNowStartInactiveTime()) {
+      await this.sendWarn(
+        data.player,
+        this.locale`You can start voting only ${this.options.startInactiveTime} seconds after the start of the match.`
       );
       return;
     }
@@ -262,7 +277,7 @@ export default class SkipMapVote extends BasePlugin {
     this.server.on("NEW_GAME", async () => {
       // if the map was played less than the timer + 5 minutes, then the previous game was skipped
       this.previousMatchHasBeenSkipped =
-        this.options.activeTimeAfterNewMap * 1000 +
+        this.options.endActiveTime * 1000 +
           this.options.endVoteTimer * 1000 +
           this.startTimeOfLastGame.valueOf() +
           5 * 60 * 1000 >

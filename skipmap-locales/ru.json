@@ -11,5 +11,6 @@
   "You can start voting only within %s seconds after the start of the match": "Начать голосование можно лишь в течении %s секунд после старта матча",
   "You can start voting from %s of the players on the server": "Начать голосование можно от %s игроков на сервере",
   "Voting has already taken place in this match": "В этом матче голосование уже проходило",
-  "The previous map has already been skipped, go play": "Предыдущая карта уже была скипнута, играй"
+  "The previous map has already been skipped, go play": "Предыдущая карта уже была скипнута, играй",
+  "You can start voting only %s seconds after the start of the match.": "Начать голосование можно через %s секунд после старта матча"
 }

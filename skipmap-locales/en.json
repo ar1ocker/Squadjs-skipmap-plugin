@@ -11,5 +11,6 @@
   "You can start voting only within %s seconds after the start of the match": "You can start voting only within %s seconds after the start of the match",
   "You can start voting from %s of the players on the server": "You can start voting from %s of the players on the server",
   "Voting has already taken place in this match": "Voting has already taken place in this match",
-  "The previous map has already been skipped, go play": "The previous map has already been skipped, go play"
+  "The previous map has already been skipped, go play": "The previous map has already been skipped, go play",
+  "You can start voting only %s seconds after the start of the match.": "You can start voting only %s seconds after the start of the match."
 }
